@@ -2,36 +2,32 @@ import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 
-
 class App extends Component {
   constructor(props) {
       super(props);
       this.state = {
         currentUser: {name: "Anonymous"}, // optional. if currentUser is not defined, it means the user is Anonymous
-        messages: [
-          { id: 1,
-            username: "Bob",
-            content: "Has anyone seen my marbles?",
-          },
-          { id: 2,
-            username: "Anonymous",
-            content: "No, I think you lost them. You lost your marbles Bob. You lost them for good."
-          }
-        ]
+        messages: [] // messages coming from the server will be stored here as they arrive
       };
     }
 
   componentDidMount() {
+    const ws = new WebSocket("ws://localhost:3001");
+    this.setState({ws: ws});
+
+    ws.onopen = (event) => {
+      console.log('Connected to server')
+
+      ws.onmessage = (event) => {
+        let recivedMsg = JSON.parse(event.data);
+        const currentUser = recivedMsg.username
+        const messages = this.state.messages.concat(recivedMsg);
+        this.setState({messages: messages});
+      }
+    };
+
     console.log("componentDidMount <App />");
-    setTimeout(() => {
-      console.log("Simulating incoming message");
-      // Add a new message to the list of messages in the data store
-      const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
-      const messages = this.state.messages.concat(newMessage)
-      // Update the state of the app component.
-      // Calling setState will trigger a call to render() in App and all child components.
-      this.setState({messages: messages})
-    }, 3000);
+
   }
 
   render() {
@@ -49,12 +45,7 @@ class App extends Component {
 
 
   _handleNewMessage = (data) => {
-    console.log(data);
-      const newMessage = {id: this.state.messages.length + 1, username: data.username, content: data.content};
-      const messages = this.state.messages.concat(newMessage)
-      this.setState({messages: messages})
-      setTimeout(() => { console.log(this.state) }, 3);
-
+      this.state.ws.send(JSON.stringify(data));
   }
  }
 export default App;

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 
 class ChatBar extends Component {
-  state = {};
+
   constructor (props) {
     super(props),
     this.state = {
@@ -30,6 +30,9 @@ class ChatBar extends Component {
   _createMessage = (event) => {
     if (event.key === 'Enter') {
     this.setState({content: event.target.value})
+    if (!this.state.username) {
+      this.setState({username: this.props.currentUser})
+    }
     setTimeout(() => { this.props.messageCreated(this.state) }, 1);
   }
   }
