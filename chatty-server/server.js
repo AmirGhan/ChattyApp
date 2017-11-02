@@ -34,7 +34,12 @@ wss.on('connection', (ws) => {
     console.log('received: ', JSON.parse(message));
     let recievedMsg = JSON.parse(message);
     recievedMsg.id = uuidv4();
-    recievedMsg.type = "incomingMessage";
+    if (recievedMsg.type === "postNotification") {
+      recievedMsg.type = "incomingNotification"
+    }
+    if (recievedMsg.type === "postMessage") {
+      recievedMsg.type = "incomingMessage";
+    }
     let data = JSON.stringify(recievedMsg);
     console.log(data)
     wss.broadcast(data);

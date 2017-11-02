@@ -20,9 +20,21 @@ class App extends Component {
 
       ws.onmessage = (event) => {
         let recivedMsg = JSON.parse(event.data);
-        const messages = this.state.messages.concat(recivedMsg);
-        this.setState({messages: messages});
-
+        switch(recivedMsg.type) {
+              case "incomingMessage":
+                // handle incoming message
+                const messages = this.state.messages.concat(recivedMsg);
+                this.setState({messages: messages});
+                break;
+              case "incomingNotification":
+                // handle incoming notification
+                const notification = this.state.messages.concat(recivedMsg);
+                this.setState({messages: notification.content});
+                break;
+              default:
+                // show an error in the console if the message type is unknown
+                throw new Error("Unknown event type " + data.type);
+            }
       }
     };
 

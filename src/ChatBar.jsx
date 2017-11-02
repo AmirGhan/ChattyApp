@@ -27,10 +27,14 @@ class ChatBar extends Component {
     if (event.key === 'Enter') {
       let newUser = event.target.value;
       let previousUser = this.state.username;
+      let defaultUser = this.props.currentUser;
+      if (previousUser === "") {
+        previousUser = defaultUser
+      }
       if (newUser !== previousUser) {
         this.setState({type: "postNotification", content: `${previousUser} has changed their name to ${newUser}.`, username: newUser})
+        setTimeout(() => { this.props.messageCreated(this.state) }, 1);
       }
-      setTimeout(() => { this.props.messageCreated(this.state) }, 1);
     }
   }
 
