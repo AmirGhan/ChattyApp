@@ -33,9 +33,10 @@ wss.on('connection', (ws) => {
   ws.on('message', function incoming(message) {
     console.log('received: ', JSON.parse(message));
     let recievedMsg = JSON.parse(message);
-    //recievedMsg.id = uuidv4();
-    recievedMsg = {id: uuidv4(), username: recievedMsg.username, content:recievedMsg.content};
+    recievedMsg.id = uuidv4();
+    recievedMsg.type = "incomingMessage";
     let data = JSON.stringify(recievedMsg);
+    console.log(data)
     wss.broadcast(data);
 
   });

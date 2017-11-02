@@ -20,9 +20,9 @@ class App extends Component {
 
       ws.onmessage = (event) => {
         let recivedMsg = JSON.parse(event.data);
-        const currentUser = recivedMsg.username
         const messages = this.state.messages.concat(recivedMsg);
         this.setState({messages: messages});
+
       }
     };
 
@@ -45,6 +45,8 @@ class App extends Component {
 
 
   _handleNewMessage = (data) => {
+
+    console.log(data)
       this.state.ws.send(JSON.stringify(data));
   }
  }

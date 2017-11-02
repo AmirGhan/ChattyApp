@@ -6,7 +6,8 @@ class ChatBar extends Component {
     super(props),
     this.state = {
       username: '',
-      content: ''
+      content: '',
+      type: ''
     }
   }
 
@@ -14,7 +15,7 @@ class ChatBar extends Component {
     console.log("Rendering <ChatBar/>");
     return (
       <footer className="chatbar">
-        <input className="chatbar-username" placeholder="Your Name (Optional)"  onChange={this._handleUsernameChange} defaultValue={this.props.currentUser} />
+        <input className="chatbar-username" placeholder="Your Name (Optional)"  onKeyPress={this._handleUsernameChange} defaultValue={this.props.currentUser} />
         <input className="chatbar-message" placeholder="Type a message and hit ENTER" onKeyPress={this._createMessage}/>
       </footer>
 
@@ -23,13 +24,21 @@ class ChatBar extends Component {
 
 
   _handleUsernameChange = (event) => {
-    this.setState({username: event.target.value})
+    if (event.key === 'Enter') {
+      let newUser = event.target.value;
+      let previousUser = this.state.username;
+      if (newUser !== previousUser) {
+        this.setState({type: "postNotification", content: `${previousUser} has changed their name to ${newUser}.`, username: newUser})
+      }
+      setTimeout(() => { this.props.messageCreated(this.state) }, 1);
+    }
   }
 
 
   _createMessage = (event) => {
     if (event.key === 'Enter') {
-    this.setState({content: event.target.value})
+    this.setState({content: event.target.value, type: "postMessage"})
+
     if (!this.state.username) {
       this.setState({username: this.props.currentUser})
     }

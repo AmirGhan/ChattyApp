@@ -14,6 +14,7 @@ class MessageList extends Component {
       <main className="messages">
       {listMessages}
         <div className="message system">
+        Anonymous changed their name to nomnom.
         </div>
       </main>
     );
