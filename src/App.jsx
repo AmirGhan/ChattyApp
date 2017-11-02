@@ -7,7 +7,8 @@ class App extends Component {
       super(props);
       this.state = {
         currentUser: {name: "Anonymous"}, // optional. if currentUser is not defined, it means the user is Anonymous
-        messages: [] // messages coming from the server will be stored here as they arrive
+        messages: [], // messages coming from the server will be stored here as they arrive
+        onlineUsers: 0
       };
     }
 
@@ -19,22 +20,28 @@ class App extends Component {
       console.log('Connected to server')
 
       ws.onmessage = (event) => {
-        let recivedMsg = JSON.parse(event.data);
-        switch(recivedMsg.type) {
+        let receivedMsg = JSON.parse(event.data);
+        // const messages = this.state.messages.concat(receivedMsg);
+        // this.setState({messages: messages});
+        switch(receivedMsg.type) {
               case "incomingMessage":
                 // handle incoming message
-                const messages = this.state.messages.concat(recivedMsg);
+                const messages = this.state.messages.concat(receivedMsg);
                 this.setState({messages: messages});
                 break;
               case "incomingNotification":
                 // handle incoming notification
-                const notification = this.state.messages.concat(recivedMsg);
-                this.setState({messages: notification.content});
+                const notification = this.state.messages.concat(receivedMsg);
+                this.setState({messages: notification});
+                break;
+              case "connected":
+                // handle connected users
+                this.setState({onlineUsers: receivedMsg.onlineUsers});
                 break;
               default:
                 // show an error in the console if the message type is unknown
-                throw new Error("Unknown event type " + data.type);
-            }
+                throw new Error("Unknown event type " + receivedMsg.type);
+        }
       }
     };
 
@@ -48,6 +55,7 @@ class App extends Component {
       <div>
       <nav className="navbar">
         <a href="/" className="navbar-brand">Chatty</a>
+        <p className="counter">{this.state.onlineUsers} user(s) online</p>
       </nav>
       <MessageList messages={this.state.messages}/>
       <ChatBar currentUser={this.state.currentUser.name} messageCreated={this._handleNewMessage}/>
