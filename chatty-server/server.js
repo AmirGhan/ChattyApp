@@ -24,36 +24,45 @@ wss.broadcast = function broadcast(data) {
   });
 };
 
+// Create random color
+function createColor() {
+  let hexcodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"];
+  let color = [0, 0, 0, 0, 0, 0];
+  color = color.map((element) => {
+    return hexcodes[Math.floor(Math.random() * 16)];
+  });
+  return `#${color.join('')}`;
+}
+
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  console.log("on connection", wss.clients.size)
-  const connectedUsers = {type: "connected", onlineUsers: wss.clients.size}
-  wss.broadcast(JSON.stringify(connectedUsers))
+  const connectedUsers = {type: "connected", onlineUsers: wss.clients.size};
+  wss.broadcast(JSON.stringify(connectedUsers));
+  let userColor = {type: "userColor", color: createColor()};
+  ws.send(JSON.stringify(userColor));
+
 
   ws.on('message', function incoming(message) {
-    //console.log('received: ', JSON.parse(message));
     let recievedMsg = JSON.parse(message);
     recievedMsg.id = uuidv4();
     if (recievedMsg.type === "postNotification") {
-      recievedMsg.type = "incomingNotification"
+      recievedMsg.type = "incomingNotification";
     }
     if (recievedMsg.type === "postMessage") {
       recievedMsg.type = "incomingMessage";
     }
     let data = JSON.stringify(recievedMsg);
-    console.log(data)
     wss.broadcast(data);
 
   });
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () => {
-    console.log('Client disconnected')
-    console.log("on close", wss.clients.size)
-    connectedUsers.onlineUsers = wss.clients.size
-    wss.broadcast(JSON.stringify(connectedUsers))
+    console.log('Client disconnected');
+    connectedUsers.onlineUsers = wss.clients.size;
+    wss.broadcast(JSON.stringify(connectedUsers));
   });
 });
